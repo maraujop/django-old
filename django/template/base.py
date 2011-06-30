@@ -682,7 +682,10 @@ class Variable(object):
                 except (TypeError, AttributeError, KeyError):
                     try: # attribute lookup
                         current = getattr(current, bit)
-                    except (TypeError, AttributeError):
+                    except (TypeError, AttributeError), error:
+                        if hasattr(current, "__class__"):   # method/property has code errors within
+                            if hasattr(current.__class__, bit):
+                                raise VariableDoesNotExist("Failed lookup for key [%s] in %r \n %s", (bit, current, error))
                         try: # list-index lookup
                             current = current[int(bit)]
                         except (IndexError, # list index out of range
